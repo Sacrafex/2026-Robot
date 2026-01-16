@@ -43,7 +43,8 @@ public class AimAndShoot extends Command {
     private static boolean autoIntakeLightsEnabled = true;
 
     private Pose2d lastKnownPose = null;
-    // https://upload.wikimedia.org/wikipedia/commons/c/c1/Yaw_Axis_Corrected.svg
+    
+    // Limelight Creation Definition, Do not edit
     private static class LimelightConfig {
         String name; double x, y, z, roll, pitch, yaw;
         LimelightConfig(String name, double x, double y, double z, double roll, double pitch, double yaw){
@@ -51,6 +52,7 @@ public class AimAndShoot extends Command {
         }
     }
 
+    // https://upload.wikimedia.org/wikipedia/commons/c/c1/Yaw_Axis_Corrected.svg
     private static final LimelightConfig[] LIMELIGHTS = {
             new LimelightConfig("limelight_front",0.25,0.0,0.8,0.0,Math.toRadians(10),0.0),
             new LimelightConfig("limelight_back",-0.25,0.0,0.8,0.0,Math.toRadians(5),Math.toRadians(180))
@@ -69,6 +71,7 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
         addRequirements(drivetrain, intake, outtakeAngle, lights);
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
+	// For each added limelight, set the offsets via limelight helpers
         for(LimelightConfig cam : LIMELIGHTS){
             LimelightHelpers.setCameraPose_RobotSpace(cam.name, cam.x, cam.y, cam.z, cam.roll, cam.pitch, cam.yaw);
         }
@@ -88,7 +91,8 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
             DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
             double hopperX = (alliance==DriverStation.Alliance.Blue)? BLUE_HOPPER_X : RED_HOPPER_X;
             double hopperY = (alliance==DriverStation.Alliance.Blue)? BLUE_HOPPER_Y : RED_HOPPER_Y;
-
+	    
+	    // Find rectangular difference between the robot and the hopper
             double dx = hopperX - botPose.getX();
             double dy = hopperY - botPose.getY();
 
@@ -138,6 +142,7 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
             if (autoIntakeLightsEnabled) {lights.setColor(235, 52, 52);};
         }
 
+	// Apply Change to Drivetrain control
         drivetrain.setControl(m_request.withVelocityX(0).withVelocityY(0).withRotationalRate(omega));
     }
 
@@ -162,6 +167,7 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
                 // Don't do anything if it doesn't return a pose
                 if(pose==null) continue;
 
+		// Calculate Average Robot Pose
                 sumX += pose.getX(); sumY += pose.getY();
                 double rot = pose.getRotation().getRadians();
                 sumCos += Math.cos(rot); sumSin += Math.sin(rot);
@@ -175,6 +181,7 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
         double avgY = sumY/count;
         double avgRot = Math.atan2(sumSin,sumCos);
 
+	// Return with type Pose2d (X, Y, Rotation)
         return new Pose2d(avgX,avgY,new Rotation2d(avgRot));
     }
 }
