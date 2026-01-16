@@ -53,6 +53,8 @@ public class AimAndShoot extends Command {
     }
 
     // https://upload.wikimedia.org/wikipedia/commons/c/c1/Yaw_Axis_Corrected.svg
+    // Name , X offset, Y offset, Z offset, Roll offset, Pitch offset, Yaw offset
+    // LimelightHelpers Measures distance in Meters - Degree in Radians
     private static final LimelightConfig[] LIMELIGHTS = {
             new LimelightConfig("limelight_front",0.25,0.0,0.8,0.0,Math.toRadians(10),0.0),
             new LimelightConfig("limelight_back",-0.25,0.0,0.8,0.0,Math.toRadians(5),Math.toRadians(180))
@@ -142,7 +144,7 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
             if (autoIntakeLightsEnabled) {lights.setColor(235, 52, 52);};
         }
 
-	// Apply Change to Drivetrain control
+	    // Apply Change to Drivetrain control
         drivetrain.setControl(m_request.withVelocityX(0).withVelocityY(0).withRotationalRate(omega));
     }
 
@@ -160,28 +162,33 @@ public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
         double sumX=0, sumY=0, sumCos=0, sumSin=0;
         int count=0;
 
-        for(LimelightConfig cam : LIMELIGHTS){
-            if(LimelightHelpers.getTV(cam.name)){
-                Pose2d pose = LimelightHelpers.getBotPose2d_wpiBlue(cam.name);
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for(LimelightConfig cam : LIMELIGHTS){
+                executor.submit(() -> {
+                    if(LimelightHelpers.getTV(cam.name)){
+                        Pose2d pose = LimelightHelpers.getBotPose2d_wpiBlue(cam.name);
 
-                // Don't do anything if it doesn't return a pose
-                if(pose==null) continue;
+                        // Don't do anything if it doesn't return a pose
+                        if(pose==null) continue;
 
-		// Calculate Average Robot Pose
-                sumX += pose.getX(); sumY += pose.getY();
-                double rot = pose.getRotation().getRadians();
-                sumCos += Math.cos(rot); sumSin += Math.sin(rot);
-                count++;
+                        // Calculate Average Robot Pose
+                        sumX += pose.getX(); sumY += pose.getY();
+                        double rot = pose.getRotation().getRadians();
+                        sumCos += Math.cos(rot); sumSin += Math.sin(rot);
+                        // Add Camera as working Camera
+                        count++;
+                    }});
+                }
             }
-        }
 
-        if(count==0) return null;
+        if(count==0) if (autoIntakeLightsEnabled) {lights.setColor(235, 52, 52);}; return null;
 
         double avgX = sumX/count;
         double avgY = sumY/count;
+        // Find average rotation of limelights
         double avgRot = Math.atan2(sumSin,sumCos);
 
-	// Return with type Pose2d (X, Y, Rotation)
+	    // Return with type Pose2d (X, Y, Rotation)
         return new Pose2d(avgX,avgY,new Rotation2d(avgRot));
+        }
     }
-}
