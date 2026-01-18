@@ -36,7 +36,7 @@ import frc.robot.subsystems.OuttakeAngle;
 public class RobotContainer {
 
     // Subsystems
-    private final Intake intake = new Intake(18);
+    private final Intake intake = new Intake(18, 1);
     private final OuttakeAngle outtakeAngle = new OuttakeAngle(5);
     private final CANdleSubsystem lights = new CANdleSubsystem(0);
 
@@ -101,6 +101,18 @@ public class RobotContainer {
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate)
             )
+        );
+
+        intake.setDefaultCommand(
+            intake.run(() -> {
+                double out = joystick.getRightTriggerAxis();
+
+                if (out < 0.05) {
+                    intake.stop();
+                } else {
+                    intake.set(-out);
+                }
+            })
         );
 
 
