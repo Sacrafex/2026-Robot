@@ -1,6 +1,6 @@
 // Helper Script created by Killian Zabinsky (@Sacrafex) for Team 2839
 // Please read INFORMATION.md for usage instructions and information.
-// Uses REVLib 2025.0.3, CTRE Phoenix v6 25.4.0, CTRE Phoenix v5 5.35.1, WPILib-New-Commands 1.0.0
+// Uses REVLib 2026.0.0, CTRE Phoenix v6 26.1.0, WPILib-New-Commands 1.0.0, REVLib 2026.0.0
 
 package frc.robot;
 
