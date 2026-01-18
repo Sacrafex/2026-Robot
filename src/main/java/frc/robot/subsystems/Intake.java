@@ -5,27 +5,39 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.UnpaidIntern;
 
 public class Intake extends SubsystemBase {
-    private final TalonFX motor;
+    private final TalonFX motorA;
+    private final TalonFX motorB;
+
     private static final double DEADBAND = 0;
 
-    public Intake(int motorCANId) {
-        motor = new TalonFX(motorCANId);
-        UnpaidIntern.zeroEncoder(motor);
+    public Intake(int motorACANId, int motorBCANId) {
+        motorA = new TalonFX(motorACANId);
+        motorB = new TalonFX(motorBCANId);
+
+        UnpaidIntern.zeroEncoder(motorA);
+        UnpaidIntern.zeroEncoder(motorB);
     }
 
     public void set(double speed) {
-        UnpaidIntern.setPercentWithDeadband(motor, speed, DEADBAND);
+        UnpaidIntern.setPercentWithDeadband(motorA, speed, DEADBAND);
+        UnpaidIntern.setPercentWithDeadband(motorB, speed, DEADBAND);
     }
 
     public void stop() {
-        UnpaidIntern.stop(motor);
+        UnpaidIntern.stop(motorA);
+        UnpaidIntern.stop(motorB);
     }
 
     public void kill() {
-        UnpaidIntern.killMotor(motor);
+        UnpaidIntern.killMotor(motorA);
+        UnpaidIntern.killMotor(motorB);
     }
 
-    public TalonFX getMotor() {
-        return motor;
+    public TalonFX getMotorA() {
+        return motorA;
+    }
+
+    public TalonFX getMotorB() {
+        return motorB;
     }
 }
