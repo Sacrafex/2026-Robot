@@ -21,12 +21,14 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AimAndShoot;
+import frc.robot.commands.DisplayMode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -116,6 +118,9 @@ public class RobotContainer {
                 }
             })
         );
+
+        joystick.y().whileTrue(new DisplayMode(lights));
+
 
 
         // DO NOT EDIT ANYTHING ELSE BELOW THIS (unless KJ)
