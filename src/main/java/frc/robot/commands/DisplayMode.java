@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANdleSubsystem;
 
@@ -14,6 +15,15 @@ public class DisplayMode extends Command {
     @Override
     public void initialize() {
         lights.setColor(0, 0, 0);
+    }
+
+    @Override
+    public void execute() {
+        while (true) {
+            lights.setColor(255, 255, 255);
+            Timer.delay(1);
+            lights.setColor(0, 0, 0);
+        }
     }
 
     @Override

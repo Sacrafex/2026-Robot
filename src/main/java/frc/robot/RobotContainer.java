@@ -121,6 +121,7 @@ public class RobotContainer {
             })
         );
 
+        // Y - Light Display Mode
         joystick.y().whileTrue(new DisplayMode(lights));
 
 
