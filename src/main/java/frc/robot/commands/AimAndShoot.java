@@ -97,12 +97,15 @@ public class AimAndShoot extends Command {
 	    
             double dx = hopperX - botPose.getX();
             SmartDashboard.putNumber("Calculated DX", dx);
+            System.out.println("dx: "+dx);
             double dy = hopperY - botPose.getY();
             SmartDashboard.putNumber("Calculated DY", dy);
+            System.out.println("dy: "+dy);
 
             // Check which tag is currently being found
             int currentTag = (int) LimelightHelpers.getFiducialID("limelight-front");
             boolean seesTag = currentTag != -1;
+            SmartDashboard.putNumber("currentFoundTag", currentTag);
 
             if (seesTag) {
                 lostCounter = 0;
@@ -140,6 +143,9 @@ public class AimAndShoot extends Command {
                 omega = 0;
             }
 
+            SmartDashboard.putNumber("omega", omega);
+            System.out.println("Found Omega: " + omega);
+
             if(autoButton.getAsBoolean() && latchedTargetAngle != null && Math.abs(omega) < 0.05){
                 if (autoIntakeLightsEnabled) {lights.setColor(79, 52, 235);};
 
@@ -165,9 +171,9 @@ public class AimAndShoot extends Command {
             SmartDashboard.putBoolean("IsDetected", true);
 
         } else {
-            System.out.println("No limelight data available and no fallback. Doing nothing.");
+            System.out.println("Limelight didn't return data.");
             SmartDashboard.putBoolean("IsDetected", false);
-            if (autoIntakeLightsEnabled) {lights.setColor(235, 52, 52);};
+            if (autoIntakeLightsEnabled) {lights.setColor(250, 75, 43);};
         }
 
         drivetrain.setControl(m_request.withVelocityX(0).withVelocityY(0).withRotationalRate(omega));
@@ -209,8 +215,11 @@ public class AimAndShoot extends Command {
         }
 
         double avgX = sumX / count;
+        SmartDashboard.putNumber("avgX", avgX);
         double avgY = sumY / count;
+        SmartDashboard.putNumber("avgY", avgY);
         double avgRot = Math.atan2(sumSin, sumCos);
+        SmartDashboard.putNumber("avgRot", avgRot);
 
         return new Pose2d(avgX, avgY, new Rotation2d(avgRot));
     }
