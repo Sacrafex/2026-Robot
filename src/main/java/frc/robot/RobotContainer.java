@@ -28,7 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AimAndShoot;
-import frc.robot.commands.DisplayMode;
+import frc.robot.commands.AimAndShoot.LimelightConfig;
+import frc.robot.commands.CameraLightCycle;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -92,12 +93,20 @@ public class RobotContainer {
                 intake,
                 outtakeAngle,
                 lights,
-                () -> joystick.rightBumper().getAsBoolean()
+                () -> false
             )
         );
 
         // Zero Robot Drivebase
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        joystick.leftBumper().whileTrue(
+            new CameraLightCycle(
+                lights,
+                AimAndShoot.LIMELIGHTS,
+                () -> joystick.leftTrigger().getAsBoolean()
+            )
+        );
 
         // Drivebase Controls
         drivetrain.setDefaultCommand(
@@ -120,11 +129,6 @@ public class RobotContainer {
                 }
             })
         );
-
-        // Y - Light Display Mode
-        joystick.y().whileTrue(new DisplayMode(lights));
-
-
 
         // DO NOT EDIT ANYTHING ELSE BELOW THIS (unless KJ)
 
