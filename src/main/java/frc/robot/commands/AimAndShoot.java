@@ -23,7 +23,7 @@ public class AimAndShoot extends Command {
     private final SwerveRequest.RobotCentric m_request = new SwerveRequest.RobotCentric();
 
     private static final double DEAD_BAND = 4;
-    private static final double kP = 0.009;
+    private static final double kP = 0.1; //0.9
 
     private static final double FIRSTPOS = 0.4;
     private static final double MAXPOS = 0.9;
@@ -32,7 +32,7 @@ public class AimAndShoot extends Command {
     private static final double BLUE_HOPPER_X = 4.626;
     private static final double BLUE_HOPPER_Y = 8.069;
     private static final double RED_HOPPER_X = 11.834;
-    private static final double RED_HOPPER_Y = 8.069;
+    private static final double RED_HOPPER_Y = 4.069;
 
     private static boolean autoIntakeLightsEnabled = true;
 

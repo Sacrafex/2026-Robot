@@ -104,7 +104,7 @@ public class RobotContainer {
             new CameraLightCycle(
                 lights,
                 AimAndShoot.LIMELIGHTS,
-                () -> joystick.leftTrigger().getAsBoolean()
+                () -> joystick.leftBumper().getAsBoolean()
             )
         );
 

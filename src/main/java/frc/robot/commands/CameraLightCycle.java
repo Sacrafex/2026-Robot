@@ -29,12 +29,15 @@ public class CameraLightCycle extends Command {
         double now = Timer.getFPGATimestamp();
 
         if (button.getAsBoolean()) {
+            System.out.println("Run 1");
             if (now - lastTime >= interval) {
+                System.out.println("Run 2");
                 lights.setColor(0, 0, 255);
                 for (AimAndShoot.LimelightConfig cam : cams) {
                     LimelightHelpers.setLEDMode_ForceOff(cam.name);
                 }
                 LimelightHelpers.setLEDMode_ForceOn(cams[currentIndex].name);
+                System.out.println(currentIndex);
                 System.out.println("Camera active: " + cams[currentIndex].name);
                 currentIndex++;
                 if (currentIndex >= cams.length) currentIndex = 0;
