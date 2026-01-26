@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,19 +33,20 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.ShooterLinearActuator;
 import frc.robot.subsystems.WebServer;
+import frc.robot.subsystems.Elevator;
 @SuppressWarnings("unused")
 public class RobotContainer {
 
-    // Subsystems
     private final Intake intake = new Intake(26, 24);
     // When using limit switches, the channels are on the RIO directly on the left and I think the text to the right is the channel
     private final ShooterLinearActuator ShooterLinearActuator = new ShooterLinearActuator(27, 0, 1);
     private final CANdleSubsystem lights = new CANdleSubsystem(0);
     private final WebServer webServer = new WebServer();
+    private final Elevator elevator = new Elevator(50, 30);
+    private final XboxController joystick = new XboxController(0);
 
     private final double SpeedReduction = 0.5;
 
-    // Ignore the following Codeblock
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -55,71 +57,37 @@ public class RobotContainer {
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     private final Telemetry logger = new Telemetry(MaxSpeed);
-    private final CommandXboxController joystick = new CommandXboxController(0);
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
-        // FRC Pathplanner AutoAlignAndShoot
-        NamedCommands.registerCommand(
-            "AutoAlignAndShoot",
-            new AimAndShoot(
-                drivetrain,
-                intake,
-                ShooterLinearActuator,
-                lights,
-                () -> true,
-                joystick
-            )
-        );
+        NamedCommands.registerCommand("AutoAlignAndShoot",new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick));
 
-        NamedCommands.registerCommand(
-            "ZeroRobotBase",
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric()
-        ));
+        NamedCommands.registerCommand("ZeroRobotBase",drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        NamedCommands.registerCommand(
-            "LimelightSync",
-            new EstimatePose(
-                lights,
-                drivetrain,
-                AimAndShoot.LIMELIGHTS
-            ).withTimeout(5.0)
-        );
+        NamedCommands.registerCommand("LimelightSync",new EstimatePose(lights,drivetrain,AimAndShoot.LIMELIGHTS).withTimeout(5.0));
 
         autoChooser = AutoBuilder.buildAutoChooser("Taxi");SmartDashboard.putData("Auto Mode", autoChooser);
         configureBindings();CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     }
 
     private void configureBindings() {
-        
-        // Auto Align R1
-        joystick.rightBumper().whileTrue(
-            new AimAndShoot(
-                drivetrain,
-                intake,
-                ShooterLinearActuator,
-                lights,
-                () -> true,
-                joystick
-            )
-        );
+
+        new Trigger(() -> joystick.getRightBumper()).whileTrue(new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick));
 
         new Trigger(() -> joystick.getLeftTriggerAxis() > 0.5).whileTrue(new TrackCode(drivetrain));
 
-        // Zero Robot Drivebase
-        joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        new Trigger(() -> joystick.getStartButton()).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        joystick.leftBumper().whileTrue(
-            new EstimatePose(
-                lights,
-                drivetrain,
-                AimAndShoot.LIMELIGHTS
-            )
-        );
+        new Trigger(() -> joystick.getLeftBumper()).whileTrue(new EstimatePose(lights,drivetrain,AimAndShoot.LIMELIGHTS));
+        
+        new Trigger(() -> joystick.getRightTriggerAxis() > 0.05).whileTrue(intake.run(() -> intake.set(-joystick.getRightTriggerAxis()))).onFalse(intake.runOnce(intake::stop));
 
-        // Drivebase Controls
+        new Trigger(() -> joystick.getPOV() == 0).whileTrue(elevator.run(() -> elevator.set(0.5))).onFalse(elevator.runOnce(elevator::stop));
+
+        new Trigger(() -> joystick.getPOV() == 180).whileTrue(elevator.run(() -> elevator.set(-0.5))).onFalse(elevator.runOnce(elevator::stop));
+
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed * SpeedReduction)
@@ -128,43 +96,10 @@ public class RobotContainer {
             )
         );
 
-        // Manual Intake R2
-        intake.setDefaultCommand(
-            intake.run(() -> {
-                double out = joystick.getRightTriggerAxis();
-
-                if (out < 0.05) {
-                    intake.stop();
-                } else {
-                    intake.set(-out);
-                }
-            })
-        );
-
-        // DO NOT EDIT ANYTHING ELSE BELOW THIS (unless KJ)
-
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
-
-        joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(0.5).withVelocityY(0))
-        );
-        joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

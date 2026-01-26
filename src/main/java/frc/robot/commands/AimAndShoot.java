@@ -4,9 +4,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -26,7 +26,7 @@ public class AimAndShoot extends Command {
     private final ShooterLinearActuator ShooterLinearActuator;
     private final BooleanSupplier autoButton;
     private final CANdleSubsystem lights;
-    private final CommandXboxController joystick;
+    private final XboxController joystick;
     private PolynomialSplineFunction intakeSpeedSpline;
     private PolynomialSplineFunction shooterAngleSpline;
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
@@ -58,7 +58,7 @@ public class AimAndShoot extends Command {
 
     public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
                        ShooterLinearActuator ShooterLinearActuator, CANdleSubsystem lights,
-                       BooleanSupplier autoButton, CommandXboxController joystick) {
+                       BooleanSupplier autoButton, XboxController joystick) {
         this.drivetrain = drivetrain;
         this.intake = intake;
         this.ShooterLinearActuator = ShooterLinearActuator;
