@@ -18,7 +18,7 @@ public final class UnpaidIntern {
 
     private UnpaidIntern() {}
 
-    private static final int MAX_MOTORS = 32;
+    private static final int MAX_MOTORS = 64;
     private static final double[] talonFXZeroOffset = new double[MAX_MOTORS];
     private static final double[] sparkZeroOffset = new double[MAX_MOTORS];
     private static final double[] minLimits = new double[MAX_MOTORS];

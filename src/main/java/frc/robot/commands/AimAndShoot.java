@@ -4,9 +4,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -26,7 +26,7 @@ public class AimAndShoot extends Command {
     private final ShooterLinearActuator ShooterLinearActuator;
     private final BooleanSupplier autoButton;
     private final CANdleSubsystem lights;
-    private final CommandXboxController joystick;
+    private final XboxController joystick;
     private PolynomialSplineFunction intakeSpeedSpline;
     private PolynomialSplineFunction shooterAngleSpline;
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
@@ -58,7 +58,7 @@ public class AimAndShoot extends Command {
 
     public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
                        ShooterLinearActuator ShooterLinearActuator, CANdleSubsystem lights,
-                       BooleanSupplier autoButton, CommandXboxController joystick) {
+                       BooleanSupplier autoButton, XboxController joystick) {
         this.drivetrain = drivetrain;
         this.intake = intake;
         this.ShooterLinearActuator = ShooterLinearActuator;
@@ -162,6 +162,7 @@ public class AimAndShoot extends Command {
 
         if (autoButton.getAsBoolean() && Math.abs(error) < SWERVE_ALIGN_DEADBAND) {
             double targetInputSpeed = intakeSpeedSpline.value(r);
+            // May or may not work, I should problably make the value correspond to an angle and a speed but both as one would be simpler.
             double targetShooterAngle = shooterAngleSpline.value(r);
 
             if (ShooterLinearActuator.isAtTarget(targetShooterAngle, INTAKE_ANGLE_DEADBAND)) {
@@ -178,6 +179,7 @@ public class AimAndShoot extends Command {
         }
 
         // Apply Drivetrain Control
+        // Note for later : Set to negative if it goes the wrong direction. RobotContainer has it inversed already
         drivetrain.setControl(drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(appliedOmega));
         SmartDashboard.putBoolean("isAutoActive", true);
     }
