@@ -37,13 +37,14 @@ import frc.robot.subsystems.Elevator;
 @SuppressWarnings("unused")
 public class RobotContainer {
 
-    private final Intake intake = new Intake(26, 24);
+    private final Intake intake = new Intake(27, 26);
     // When using limit switches, the channels are on the RIO directly on the left and I think the text to the right is the channel
     private final ShooterLinearActuator ShooterLinearActuator = new ShooterLinearActuator(27, 0, 1);
     private final CANdleSubsystem lights = new CANdleSubsystem(0);
     private final WebServer webServer = new WebServer();
     private final Elevator elevator = new Elevator(50, 30);
-    private final XboxController joystick = new XboxController(0);
+    private final XboxController joystick0 = new XboxController(0);
+    private final XboxController joystick1 = new XboxController(1);
 
     private final double SpeedReduction = 0.5;
 
@@ -62,7 +63,9 @@ public class RobotContainer {
 
     public RobotContainer() {
 
-        NamedCommands.registerCommand("AutoAlignAndShoot",new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick));
+        // Autonomous Commands
+
+        NamedCommands.registerCommand("AutoAlignAndShoot",new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick0));
 
         NamedCommands.registerCommand("ZeroRobotBase",drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -74,28 +77,42 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        new Trigger(() -> joystick.getRightBumper()).whileTrue(new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick));
+        // Joystick0 - Main Driver Controller
 
-        new Trigger(() -> joystick.getLeftTriggerAxis() > 0.5).whileTrue(new TrackCode(drivetrain));
+        new Trigger(() -> joystick0.getRightBumper()).whileTrue(new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick0));
 
-        new Trigger(() -> joystick.getStartButton()).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        new Trigger(() -> joystick0.getLeftTriggerAxis() > 0.25).whileTrue(new TrackCode(drivetrain, joystick0));
 
-        new Trigger(() -> joystick.getLeftBumper()).whileTrue(new EstimatePose(lights,drivetrain,AimAndShoot.LIMELIGHTS));
+        //new Trigger(() -> joystick0.getLeftTriggerAxis() >= 0.2).whileTrue(new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick0));
+
+        //new Trigger(() -> joystick0.getRightTriggerAxis() >= 0.2).whileTrue(new AimAndShoot(drivetrain,intake,ShooterLinearActuator,lights,() -> true,joystick0));
         
-        new Trigger(() -> joystick.getRightTriggerAxis() > 0.05).whileTrue(intake.run(() -> intake.set(-joystick.getRightTriggerAxis()))).onFalse(intake.runOnce(intake::stop));
+        new Trigger(() -> joystick0.getStartButton()).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        
+        new Trigger(() -> joystick0.getLeftBumper()).whileTrue(new EstimatePose(lights,drivetrain,AimAndShoot.LIMELIGHTS));
+        
+        new Trigger(() -> joystick0.getRightTriggerAxis() > 0.05).whileTrue(intake.run(() -> intake.set(-joystick0.getRightTriggerAxis()))).onFalse(intake.runOnce(intake::stop));
 
-        new Trigger(() -> joystick.getPOV() == 0).whileTrue(elevator.run(() -> elevator.set(0.5))).onFalse(elevator.runOnce(elevator::stop));
+        new Trigger(() -> joystick0.getPOV() == 0).whileTrue(elevator.run(() -> elevator.set(0.5))).onFalse(elevator.runOnce(elevator::stop));
 
-        new Trigger(() -> joystick.getPOV() == 180).whileTrue(elevator.run(() -> elevator.set(-0.5))).onFalse(elevator.runOnce(elevator::stop));
+        new Trigger(() -> joystick0.getPOV() == 180).whileTrue(elevator.run(() -> elevator.set(-0.5))).onFalse(elevator.runOnce(elevator::stop));
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed * SpeedReduction)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed * SpeedReduction)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate * SpeedReduction)
-            )
-        );
+                drive.withVelocityX(-joystick0.getLeftY() * MaxSpeed * SpeedReduction)
+                    .withVelocityY(-joystick0.getLeftX() * MaxSpeed * SpeedReduction)
+                    .withRotationalRate(-joystick0.getRightX() * MaxAngularRate * SpeedReduction)
+                    )
+                );
+                    
+        // Joystick1 - Operator Controller
 
+        //new Trigger(() -> joystick1.getLeftTriggerAxis() > 0.25).whileTrue(new TrackCode(drivetrain, joystick1));
+
+        new Trigger(() -> joystick1.getLeftBumper()).whileTrue(new EstimatePose(lights,drivetrain,AimAndShoot.LIMELIGHTS));
+
+        // Idle & Telemetry
+                    
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)

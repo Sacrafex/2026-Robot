@@ -105,6 +105,7 @@ public class WebServer extends SubsystemBase {
                 <p>Applied Omega: <span id="AppliedOmega">0</span></p>
                 <p>intakeSpeed: <span id="intakeSpeed">0</span></p>
                 <p>targetShooterAngle: <span id="targetShooterAngle">0</span></p>
+                <p>ShooterSpeed: <span id="ShooterSpeed">0</span></p>
               </body>
             </html>
             """;
