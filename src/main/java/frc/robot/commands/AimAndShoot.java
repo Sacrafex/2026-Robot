@@ -52,8 +52,7 @@ public class AimAndShoot extends Command {
     }
 
     public static final LimelightConfig[] LIMELIGHTS = {
-        new LimelightConfig("limelight-front",0.3556,0.0,0.13335,Math.toRadians(0),Math.toRadians(55),Math.toRadians(0)),
-        new LimelightConfig("limelight-back",-0.3556,0.0,0.13335,Math.toRadians(0),Math.toRadians(55),Math.toRadians(180))
+        new LimelightConfig("limelight-front",0.01125,-0.005,0.095,Math.toRadians(0),Math.toRadians(58),Math.toRadians(0))
     };
 
     public AimAndShoot(CommandSwerveDrivetrain drivetrain, Intake intake,
@@ -65,6 +64,7 @@ public class AimAndShoot extends Command {
         this.autoButton = autoButton;
         this.lights = lights;
         this.joystick = joystick;
+
 
         addRequirements(drivetrain, intake, ShooterLinearActuator, lights);
 
@@ -178,8 +178,14 @@ public class AimAndShoot extends Command {
             intake.stop();
         }
 
-        // Apply Drivetrain Control
-        // Note for later : Set to negative if it goes the wrong direction. RobotContainer has it inversed already
+        if (joystick.getRightTriggerAxis() >= 0.2) {
+            intake.set(joystick.getRightTriggerAxis());
+            ShooterLinearActuator.setPosition(joystick.getRightTriggerAxis());
+
+            WebServer.putNumber("intakeSpeed", joystick.getRightTriggerAxis());
+            WebServer.putNumber("targetShooterAngle", joystick.getRightTriggerAxis());
+        }
+
         drivetrain.setControl(drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(appliedOmega));
         SmartDashboard.putBoolean("isAutoActive", true);
     }
