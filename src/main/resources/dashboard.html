@@ -101,7 +101,42 @@ svg {
   transition: width 0.1s linear;
 }
 .ac {
-    width: 300px;
+    width: 100%;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+input[type="number"] {
+    width: 100%;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+
+input[type="range"] {
+  accent-color: #2222226e;
+  width: 100%;
+  height: 30px;
+  min-height: 10px;
+  background: #2222226e;
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  color: white;
+}
+
+button {
+    width: 100%;
     height: 30px;
     min-height: 10px;
     background: #2222226e;
@@ -115,7 +150,8 @@ svg {
   font-weight: 200;
   color:rgba(255, 255, 255, 0.54);
   -webkit-text-stroke: 0.2px #000000;
-  filter: drop-shadow(2px 4px 4px #3e3e3e)
+  filter: drop-shadow(2px 4px 4px #3e3e3e);
+  text-align: center;
 }
 .large {
   font-weight: 400;
@@ -150,7 +186,7 @@ canvas {
     <h1 style="font-weight:900;background:linear-gradient(rgb(235, 192, 18), rgb(0, 0, 0));-webkit-text-stroke: 2px #000000;font-size:100px; -webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;">Daedalus</h1>
   </div>
   </center>
-  <div style="display:flex;width:30%;flex:1;" class="overlay">
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
     <p id="status">Loading...</p>
     <h4 class="tptext large">Auto Align Stats</h4>
     <div style="display:flex;">
@@ -165,9 +201,9 @@ canvas {
     <p class="tptext" style="margin-right:5px;">&#937;:<span id="TComega">0</span></p>
     </div>
   </div>
-  <div style="display:flex;width:30%;flex:1;" class="overlay">
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
   <br>
-  	<p class="tptext" >ControllerTargetSpeed: <span id="TargetSpeed">0</span></p>
+  	<p class="tptext" >TargetSpeed: <span id="TargetSpeed">0</span></p>
 
   	<div class="bar">
     <div class="bar-fill" id="TargetSpeedBar"></div>
@@ -179,8 +215,6 @@ canvas {
     <div class="bar-fill" id="BeltSpeedBar"></div>
     </div>
 
-    <p class="tptext" >AppliedBeltSpeed: <span id="AppliedBeltSpeed">0</span></p>
-
     <div class="bar">
     <div class="bar-fill" id="AppliedBeltSpeedBar"></div>
     </div>
@@ -190,8 +224,6 @@ canvas {
     <div class="bar">
     <div class="bar-fill" id="ShooterBSpeedBar"></div>
     </div>
-
-    <p class="tptext" >AppliedShooterBSpeed: <span id="AppliedShooterBSpeed">0</span></p>
 
     <div class="bar">
     <div class="bar-fill" id="AppliedShooterBSpeedBar"></div>
@@ -203,27 +235,26 @@ canvas {
     <div class="bar-fill" id="ShooterCSpeedBar"></div>
     </div>
 
-    <p class="tptext" >AppliedShooterCSpeed: <span id="AppliedShooterCSpeed">0</span></p>
-
     <div class="bar">
     <div class="bar-fill" id="AppliedShooterCSpeedBar"></div>
     </div>
 
   </div>
-  <div style="display:flex;width:30%;flex:1;" class="overlay">
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
     <h3 class="tptext" >Auto Chooser</h3>
 	<select class="ac" id="autoChooser"></select>
   
   <center><div id="robotBase" style="height:100px; width:100px; border: 2px solid #fff; background-color:transparent;margin-top:50px; margin-bottom: 50px;">^</div></center>
 
-  <p>Manual Shooter Speed:</p>
-  <input id="MESS_SPEED" type="text" placeholder="Speed (Rotations)">
+  <h4 class="tptext large">Manual Shooter Calibration:</h4>
+  <input id="MESS_SPEED" type="number" placeholder="Speed (Rotations)">
   <br>
-  <input id="MESS_TIME" type="text" placeholder="Time (Seconds)">
+  <input id="MESS_TIME" type="number" placeholder="Time (Seconds)">
   <br>
   <button onclick="runObjectForTime('shooterSpeedRotations', document.getElementById('MESS_SPEED').value, document.getElementById('MESS_TIME').value)">Run Motors</button>
+  <p>Live Shooter Error Correction Slider</p>
+  <input type="range" id="ec" name="ec" min="0" max="100" />
   </div>
-
 </div>
 
 <script>
@@ -265,8 +296,6 @@ try {
   }
 }
 
-setInterval(updateDashboard, 100);
-
 async function updateAutoChooser() {
     try {
         const resautos = await fetch('/autos');
@@ -289,11 +318,9 @@ document.getElementById('autoChooser').addEventListener('change', e => {
     fetch('/setAuto?auto=' + e.target.value);
 });
 
-setInterval(updateAutoChooser, 2000);
-
 async function runObjectForTime(target, value, time) {
   try {
-  fetch('/set?target=' + target + '&value='+ value + '&time=' + time);
+  await fetch(`/set?target=${encodeURIComponent(target)}&value=${encodeURIComponent(value)}&time=${encodeURIComponent(time)}`);
   } catch (err) {
   console.log(err);
   }
@@ -308,7 +335,19 @@ async function setRobotRotation() {
   document.getElementById("robotBase").style.transform = `rotate(${datarot.degree}deg)`;
 }
 
-setInterval(setRobotRotation, 100);
+
+function updateAll() {
+  updateDashboard();
+  setRobotRotation();
+  updateAutoChooser();
+}
+
+document.getElementById('ec').addEventListener('change', e => {
+    fetch('/setErrorCorrection?value=' + e.target.value);
+});
+
+setInterval(updateAll, 100);
+
 </script>
 </body>
 </html>

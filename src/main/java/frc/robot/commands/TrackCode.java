@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +23,6 @@ public class TrackCode extends Command {
     
     private static final double kP_DIST = 1;
     private static final double kP_STRAFE = 0.1;
-    private static final double kP_ROT = 4;
 
     private static final double MAX_VEL = 8.0;
     private static final double MAX_OMEGA = 10;
@@ -32,6 +32,9 @@ public class TrackCode extends Command {
 
     private static final double vy_zero = 0.00001;
     private static final double omega_zero = 0.00001;
+
+    // TODO: Tune Code Tracking PID
+    private final PIDController codePID = new PIDController(0.1, 0.0, 0.05);
 
     private double lastTime = Timer.getFPGATimestamp();
     private final double interval = 0.05;
@@ -72,7 +75,8 @@ public class TrackCode extends Command {
         WebServer.putNumber("TCvx", vx);
         vy = strafeError * kP_STRAFE;
         WebServer.putNumber("TCvy", vy);
-        omega = -angleError * kP_ROT;
+        // TODO: IF DOESN'T WORK, TRY INVERSING angleError
+        omega = codePID.calculate(-angleError, 0);
         WebServer.putNumber("TComega", omega);
 
         vx = Math.max(-MAX_VEL, Math.min(MAX_VEL, vx));

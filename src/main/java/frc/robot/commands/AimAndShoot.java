@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -29,7 +31,6 @@ public class AimAndShoot extends Command {
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
 
     private static final double SWERVE_ALIGN_DEADBAND = 5;
-    private static final double kP = 0.1;
 
     // Meters
     private static final double BLUE_HOPPER_X = 4.626;
@@ -39,6 +40,10 @@ public class AimAndShoot extends Command {
 
     private static boolean autoIntakeLightsEnabled = true;
     private static boolean allowAlignDriveControl = true;
+
+    // TODO: Tune AutoAlignPID for AIMANDSHOOT
+    // TODO: Look into converting degrees to rads (might improve speed)
+    private final PIDController omegaPID = new PIDController(0.1, 0.0, 0.05);
 
     public static final Constants.Limelight.LimelightConfig[] LIMELIGHTS = Constants.Limelight.LIMELIGHTS;
 
@@ -67,7 +72,6 @@ public class AimAndShoot extends Command {
     @Override
     public void execute() {
 
-        // For drivebase movement when aligning
         double xSpeed;
         if (allowAlignDriveControl) {
             xSpeed = joystick.getLeftX();
@@ -124,7 +128,6 @@ public class AimAndShoot extends Command {
 
         double botPoseX = poseToUse.getX();
         double botPoseY = poseToUse.getY();
-        double botRot = poseToUse.getRotation().getDegrees();
 
         WebServer.putNumber("botPoseX", Math.round(botPoseX*100)/100);
         WebServer.putNumber("botPoseY", Math.round(botPoseY*100)/100);
@@ -138,16 +141,17 @@ public class AimAndShoot extends Command {
         double omega = Math.toDegrees(Math.atan2(dy, dx));
         WebServer.putNumber("Omega", Math.round(omega*100)/100);
 
-        double error = omega - botRot;
+        double error = omega - drivetrain.getPose().getRotation().getDegrees();
+
         if (error > 180) error -= 360;
         else if (error < -180) error += 360;
 
-        double appliedOmega = error * kP;
+        double appliedOmega = omegaPID.calculate(drivetrain.getPose().getRotation().getDegrees(), omega);
         WebServer.putNumber("AppliedOmega", appliedOmega);
 
         System.out.println(Math.abs(error));
         if (autoButton.getAsBoolean() && Math.abs(error) < SWERVE_ALIGN_DEADBAND) {
-            try { 
+            try {
 
             double targetInputSpeed = shooterSpeedSpline.value(r);
 

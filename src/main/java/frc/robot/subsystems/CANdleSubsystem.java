@@ -18,8 +18,7 @@ public class CANdleSubsystem extends SubsystemBase {
         RGBWColor color = new RGBWColor(r, g, b, 0);
 
         candle.setControl(
-            new SolidColor(0, 399)
-                .withColor(color)
+            new SolidColor(0, 399).withColor(color)
         );
     }
 

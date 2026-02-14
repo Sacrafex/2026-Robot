@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import fi.iki.elonen.NanoHTTPD;
+import frc.robot.Constants;
 
 
 public class WebServer extends SubsystemBase {
@@ -48,11 +49,12 @@ public class WebServer extends SubsystemBase {
             private final DashboardServer server;
         
             public WebServer(CommandSwerveDrivetrain drivetrain, Shooter shooter) {
-                WebServer.drivetrain = drivetrain;
-            server = new DashboardServer(2839);
+            WebServer.drivetrain = drivetrain;
+            WebServer.shooter = shooter;
+            server = new DashboardServer(5810);
             try {
                 server.start(5000, false);
-                System.out.println("Dashboard: http://" + getLocalIp() + ":2839/");
+                System.out.println("Dashboard: http://" + getLocalIp() + ":5810/");
             } catch (IOException e) {
                 stopServer();
             }
@@ -94,8 +96,6 @@ public class WebServer extends SubsystemBase {
                 json.append("}");
                 Response r = newFixedLengthResponse(json.toString());
                 r.addHeader("Content-Type", "application/json");
-                System.out.println("Returned Data RHEADER:"+r);
-                System.out.println("Returned Data JSON:"+json);
                 return r;
             }
     
@@ -117,7 +117,7 @@ public class WebServer extends SubsystemBase {
 
             if ("/rotations".equals(uri)) {
                 StringBuilder json = new StringBuilder("{");
-                double drivebaserot = Math.abs(drivetrain.getRotation3d().getAngle()*(180/Math.PI));
+                double drivebaserot = drivetrain.getRotation3d().getAngle()*(180/Math.PI);
                 json.append("\"degree\":").append(drivebaserot);
                 json.append("}");
                 Response r = newFixedLengthResponse(json.toString());
@@ -132,13 +132,23 @@ public class WebServer extends SubsystemBase {
                 return newFixedLengthResponse("OK");
             }
 
+            if ("/setErrorCorrection".equals(uri)) {
+                Map<String, List<String>> p = session.getParameters();
+                String eCValue = p.get("value").get(0);
+                Constants.Trajectory.errorCorrectionMultiplier = Double.parseDouble(eCValue)/50;
+                return newFixedLengthResponse("OK");
+            }
+
             if ("/set".equals(uri)) {
                 Map<String, List<String>> p = session.getParameters();
+                if (!p.containsKey("target") || !p.containsKey("value") || !p.containsKey("time")) {
+                System.out.println("/set parameters are missing");
+                return newFixedLengthResponse("Missing parameters");
+                }
                 String setTarget = p.get("target").get(0);
                 double setValue = Double.parseDouble(p.get("value").get(0));
                 double setTime = Double.parseDouble(p.get("time").get(0));
                 if ("shooterSpeedRotations".equals(setTarget)) {
-                System.out.println("shooterSpeedRotations Command Recieved -> Value: "+setValue+" : Time: "+setTime);
                 CommandScheduler.getInstance().schedule(Commands.run(() -> shooter.matchRotations(setValue), shooter).withTimeout(setTime));
                 }
                 return newFixedLengthResponse("OK");

@@ -29,9 +29,11 @@ public class Shooter extends SubsystemBase {
     private boolean beltStarted = false;
     private double currentSpeed = 0;
 
-    PIDController beltAPID = new PIDController(0.95, 0.9, 0);
-    PIDController shooterBPID = new PIDController(0.95, 0.9, 0);
-    PIDController shooterCPID = new PIDController(0.95, 0.9, 0);
+    // TUNE THIS FIRST (SMALLER FIRST) this is problably going to be wrong because units are in rpm now
+    // TODO: TUNE PID FOR SHOOTER
+    PIDController beltAPID = new PIDController(0.95, 0.2, 0);
+    PIDController shooterBPID = new PIDController(0.95, 0.2, 0);
+    PIDController shooterCPID = new PIDController(0.95, 0.2, 0);
 
     double MAX_SPEED_RPM = 6000;
 
@@ -75,31 +77,31 @@ public class Shooter extends SubsystemBase {
     }
 
     public void runRotationsAsController(double speed) {
-        speed = speed*MAX_SPEED_RPM;
+        speed = (speed*MAX_SPEED_RPM)*Constants.Trajectory.errorCorrectionMultiplier;
         matchRotations(speed);
         System.out.println("RunRotationsAsControllerSpeed: "+speed);
     }
 
-    public void matchRotations(double speed) {
+    public void matchRotations(double targetRPM) {
 
-        // Convert RPS to RPM when fetching Velocity
-        double currentBeltSpeed = motorA.getVelocity().getValueAsDouble()*60;
-        double currentShooterBSpeed = motorB.getVelocity().getValueAsDouble()*60;
-        double currentShooterCSpeed = -motorC.getVelocity().getValueAsDouble()*60;
+        double currentBeltRPM = motorA.getVelocity().getValueAsDouble() * 60;
+        double currentBumperRPM = motorB.getVelocity().getValueAsDouble() * 60;
+        double currentShooterCRPM = -motorC.getVelocity().getValueAsDouble() * 60;
 
-        appliedBeltSpeed = 0.2*-clamp(((beltAPID.calculate(currentBeltSpeed/MAX_SPEED_RPM, speed/MAX_SPEED_RPM))));
-        appliedShooterBSpeed = clamp(((shooterBPID.calculate(currentShooterBSpeed/MAX_SPEED_RPM, speed/MAX_SPEED_RPM))));
-        appliedShooterCSpeed = -clamp(((shooterCPID.calculate(currentShooterCSpeed/MAX_SPEED_RPM, speed/MAX_SPEED_RPM))));
+        double beltTargetRPM = targetRPM * 0.2;
 
-        WebServer.putNumber("TargetSpeed", speed);
-        System.out.println("SentWebserver TargetSpeed: "+speed);
-        WebServer.putNumber("BeltSpeed", currentBeltSpeed);
-        System.out.println("SentWebserver BeltSpeed: "+currentBeltSpeed);
-        WebServer.putNumber("ShooterBSpeed", currentShooterBSpeed);
-        System.out.println("SentWebserver ShooterB: "+currentShooterBSpeed);
-        WebServer.putNumber("ShooterCSpeed", currentShooterCSpeed);
-        System.out.println("SentWebserver ShooterC: "+currentShooterCSpeed);
+        double beltOutput = beltAPID.calculate(currentBeltRPM, beltTargetRPM) / MAX_SPEED_RPM * 0.2;
+        double bOutput = shooterBPID.calculate(currentBumperRPM, targetRPM) / MAX_SPEED_RPM;
+        double cOutput = shooterCPID.calculate(currentShooterCRPM, targetRPM) / MAX_SPEED_RPM;
 
+        appliedBeltSpeed = MathUtil.clamp(beltOutput, -0.2, 0.2);
+        appliedShooterBSpeed = MathUtil.clamp(bOutput, -1, 1);
+        appliedShooterCSpeed = MathUtil.clamp(-cOutput, -1, 1);
+
+        WebServer.putNumber("TargetSpeed", targetRPM);
+        WebServer.putNumber("BeltSpeed", currentBeltRPM);
+        WebServer.putNumber("ShooterBSpeed", currentBumperRPM);
+        WebServer.putNumber("ShooterCSpeed", currentShooterCRPM);
         WebServer.putNumber("AppliedBeltSpeed", appliedBeltSpeed);
         WebServer.putNumber("AppliedShooterBSpeed", appliedShooterBSpeed);
         WebServer.putNumber("AppliedShooterCSpeed", appliedShooterCSpeed);

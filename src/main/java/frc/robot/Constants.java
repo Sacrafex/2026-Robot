@@ -29,5 +29,6 @@ public class Constants {
         public static double MOTOR_B_SPEED_MULTIPLER = 0.8;
         public static double MOTOR_C_SPEED_MULTIPLER = 1;
 
+        public static double errorCorrectionMultiplier = 1;
     }
 }
