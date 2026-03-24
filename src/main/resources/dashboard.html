@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #000;
+  font-family: Verdana, sans-serif;
+  overflow: hidden;
+}
+
+@keyframes changeColor{
+  
+  0%{
+    filter: hue-rotate(0deg) blur(6px)
+  }
+   100%{
+    filter: hue-rotate(360deg) blur(6px)
+  }
+  
+}
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  animation: changeColor 10s linear infinite;
+  filter: blur(6px);
+}
+
+.overlay {
+  position: relative;
+  inset: 0;
+  z-index: 2;
+  color: white;
+  padding: 24px;
+  flex: 1;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+svg {
+  display: block;
+  font: 20em 'Montserrat';
+  width: 80%;
+  height: 300px;
+  margin-top:140px;
+}
+
+.text-copy {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 6% 29%;
+  stroke-width: 5px;
+  animation: stroke-offset 5.5s infinite linear;
+}
+
+.text-copy:nth-child(1) {
+  stroke: #FFD700;
+  animation-delay: -1s;
+}
+
+.text-copy:nth-child(2) {
+  stroke: #847900;
+  animation-delay: -2s;
+}
+
+.text-copy:nth-child(3) {
+  stroke: #DAA520;
+  animation-delay: -3s;
+}
+
+.text-copy:nth-child(4) {
+  stroke: #FF8C00;
+  animation-delay: -4s;
+}
+
+@keyframes stroke-offset {
+  100% {
+    stroke-dashoffset: -35%;
+  }
+}
+.bar {
+  width: 80%;
+  height: 12px;
+  min-height: 12px;
+  background: #2222226e;
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 6px 0 14px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #FFD700, #FF8C00);
+  transition: width 0.1s linear;
+  position: relative;
+  font-size: 10px;
+
+}
+.bar-fill::after {
+  content: attr(data-label);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+.ac {
+    width: 100%;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+input[type="number"] {
+    width: 100%;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+
+.sliderA {
+  accent-color: #ebebeb4a;
+  width: 100%;
+  height: 30px;
+  min-height: 10px;
+  background: #2222226e;
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  color: white;
+}
+
+button {
+    width: 100%;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+.tptext {
+  font-weight: 200;
+  color:rgba(255, 255, 255, 0.54);
+  text-align: center;
+}
+.large {
+  font-weight: 400;
+  font-size: 20px;
+  color:rgba(255, 255, 255, 0.733);
+}
+canvas {
+  aspect-ratio: 1/1;
+  width:90%;
+  margin-top:20%;
+}
+input::placeholder {
+  text-align: center;
+}
+select option {
+  background-color: #000;
+}
+#slider-container {
+    display: flex;
+    gap: 12px;
+}
+.slider-box {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    color: #fff;
+}
+.sliderB {
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    writing-mode: bt-lr;
+    width: 20px;
+    accent-color: #ebebeb4a;
+    height: 400px;
+}
+.value {
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+  <div style="display:flex;" class="wrapper">
+  <center>
+  <div class="background">
+    <svg viewBox="0 0 960 300">
+      <symbol id="s-text">
+        <text text-anchor="middle" x="50%" y="90%">2839</text>
+      </symbol>
+      
+      <g>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+      </g>
+    </svg>
+    <h1 style="font-weight:900;background:linear-gradient(rgb(235, 192, 18), rgb(0, 0, 0));-webkit-text-stroke: 2px #000000;font-size:100px; -webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;">Daedalus</h1>
+  </div>
+  </center>
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
+    <p id="status">Loading...</p>
+    <div style="display:flex;">
+    <p class="tptext" style="margin-right:5px;">AA -> </p>
+    <p class="tptext" style="margin-right:5px;"> &#916;:<span id="DistancefromHopper">0</span></p>
+    <p class="tptext" style="margin-right:5px;"> &#937;:<span id="Omega">0</span></p>
+    <p class="tptext" style="margin-right:5px;"> &#937;A:<span id="AppliedOmega">0</span></p>
+    </div>
+    <div class="tptext" style="display:flex;">
+      <p class="tptext" style="margin-right:5px;">TC -> </p>
+      <p class="tptext" style="margin-right:5px;">&#916;X:<span id="TCvx">0</span></p>
+      <p class="tptext" style="margin-right:5px;">&#916;Y:<span id="TCvy">0</span></p>
+      <p class="tptext" style="margin-right:5px;">&#937;:<span id="TComega">0</span></p>
+    </div>
+  </div>
+
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
+  	<div class="bar">
+      <div class="bar-fill" id="TargetSpeed" style="color: white; text-align: center; line-height: 12px;">TargetSpeed</div>
+    </div>
+
+	  <div class="bar">
+    <div class="bar-fill" id="BeltSpeed" style="color: white; text-align: center; line-height: 12px;">BeltSpeed</div>
+    </div>
+
+    <div class="bar">
+    <div class="bar-fill" id="KickSpeed" style="color: white; text-align: center; line-height: 12px;">KickSpeed</div>
+    </div>
+
+    <div class="bar">
+    <div class="bar-fill" id="ShooterSpeed" style="color: white; text-align: center; line-height: 12px;">ShooterSpeed</div>
+    </div>
+
+    <div class="bar">
+    <div class="bar-fill" id="IntakeRoller" style="color: white; text-align: center; line-height: 12px;">IntakeRoller</div>
+    </div>
+
+    <div class="bar">
+    <div class="bar-fill" id="HopperDistance" style="color: white; text-align: center; line-height: 12px;">HopperDistance</div>
+    </div>
+  </div>
+
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
+    <div id="slider-container">
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+      <div class="slider-box">
+        <div class="value">3.0k</div>
+        <input class="sliderB" type="range" min="0" max="6000" value="3000">
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;width:30%;flex:1;align-items: center;" class="overlay">
+	<select class="ac" id="autoChooser">
+    <option value="" disabled selected hidden>Please Select an Auto</option>
+  </select>
+  
+  <center><div id="robotBase" style="height:40px; width:40px; border: 2px solid #fff; background-color:transparent;margin-top:20px; margin-bottom: 10px;">^</div></center>
+
+  <div style="display:grid;">
+    <div style="display:flex;">
+      <input style="width:50%;margin-right:3%;" id="MESS_SPEED" type="number" placeholder="Speed (Rotations)">
+      <br>
+      <input style="width:50%;" id="MESS_TIME" type="number" placeholder="Time (Seconds)">
+      <br>
+    </div>
+
+    <button onclick="runObjectForTime('shooterSpeedRotations', document.getElementById('MESS_SPEED').value, document.getElementById('MESS_TIME').value)">Run Motors</button>
+    
+    <select class="ac" id="targetChooser">
+      <option style="background-color: #000;" value="ShooterPID">Shooter</option>
+      <option style="background-color: #000;" value="TrackCodePID">TrackCode</option>
+      <option style="background-color: #000;" value="AimAndShoot">Auto GoAndShoot</option>
+    </select>
+    
+    <div style="display:flex;align-items: center;">
+      <input style="width:33.3%;margin-right:3%;" id="kP" type="number" placeholder="kP">
+      <input style="width:33.3%;margin-right:3%;" id="kI" type="number" placeholder="kI">
+      <input style="width:33.3%;" id="kD" type="number" placeholder="kD">
+    </div>
+
+    <button onclick="applyPIDs();">Set PIDs</button>
+  </div>
+  <p style="margin:0;" class="tptext">+/- Shooter Error Correction</p>
+    <input style="width:80%;" class="sliderA" type="range" id="ec" name="ec" min="0" max="100" />
+</div>
+</div>
+
+<script>
+const limits = {
+  TargetSpeed: 6000,
+  BeltSpeed: 6000,
+  KickSpeed: 6000,
+  ShooterSpeed: 6000,
+  IntakeRoller: 6000,
+  HopperDistance: 20
+};
+
+async function updateDashboard() {
+    try {
+        const res = await fetch('/data');
+        const dataDB = await res.json();
+
+        for (const key in dataDB) {
+            const valueEl = document.getElementById(key);
+            if (valueEl) valueEl.innerText = dataDB[key];
+
+            const bar = document.getElementById(key);
+            if (bar && limits[key] !== undefined) {
+                const percent = Math.min((dataDB[key] / limits[key]) * 100, 100);
+                bar.style.width = percent + "%";
+            }
+        }
+
+        const distance = dataDB.distance;
+        const sliders = document.querySelectorAll('.sliderB');
+        let closestSlider = null;
+        let closestDiff = Infinity;
+
+        sliders.forEach(slider => {
+            const sliderValue = parseFloat(slider.value);
+            const diff = Math.abs(sliderValue - distance);
+            if (diff < closestDiff) {
+                closestDiff = diff;
+                closestSlider = slider;
+            }
+            slider.style.backgroundColor = "";
+        });
+
+        if (closestSlider) {
+            closestSlider.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        }
+
+        document.getElementById("status").innerHTML = '<p style="color:lightgreen;">Connected</p> ' + new Date().toLocaleTimeString();
+    } catch (err) {
+        console.log("Caught Error: " + err);
+        document.getElementById("status").innerHTML = '<p style="color:red;">Disconnected</p> ';
+    }
+}
+
+async function updateAutoChooser() {
+    try {
+        const resautos = await fetch('/autos');
+        const data = await resautos.json();
+        const select = document.getElementById('autoChooser');
+        select.innerHTML = '';
+        for (const [name, val] of Object.entries(data.options)) {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = name;
+            opt.style.backgroundColor = "#000";
+            if (val === data.selected) opt.selected = true;
+            select.appendChild(opt);
+        }
+    } catch (err) {
+        console.error('Failed to load autos', err);
+    }
+}
+
+async function fetchSpeeds() {
+    try {
+        const res = await fetch('/speeds');
+        const speeds = await res.json();
+        const sliders = document.querySelectorAll('.sliderB');
+        sliders.forEach((slider, index) => {
+            if (index < speeds.length) {
+                slider.value = speeds[index];
+                slider.previousElementSibling.textContent = (speeds[index] / 1000).toFixed(1) + 'k';
+            }
+        });
+    } catch (err) {
+        console.error('Failed to fetch speeds:', err);
+    }
+}
+
+document.getElementById('autoChooser').addEventListener('change', e => {
+    fetch('/setAuto?auto=' + e.target.value);
+});
+
+async function runObjectForTime(target, value, time) {
+  try {
+  await fetch(`/set?target=${encodeURIComponent(target)}&value=${encodeURIComponent(value)}&time=${encodeURIComponent(time)}`);
+  } catch (err) {
+  console.log(err);
+  }
+}
+
+async function setRobotRotation() {
+  request = await fetch("/rotations");
+  if (!request.ok) {return}
+  datarot = await request.json();
+  document.getElementById("robotBase").style.transform = `rotate(${datarot.degree}deg)`;
+}
+
+async function applyPIDs() {
+  const targetChooser = document.getElementById("targetChooser");
+  const elP = document.getElementById("kP");
+  const elI = document.getElementById("kI");
+  const elD = document.getElementById("kD");
+  var target;
+
+  try {
+    const params = new URLSearchParams({
+      kPvar: elP.value,
+      kIvar: elI.value,
+      kDvar: elD.value,
+      target: targetChooser.value
+    });
+    await fetch(`/setPID?${params.toString()}`);
+  } catch (err) {
+    console.log("Failed to set PIDs:", err);
+  }
+}
+
+async function loadPIDs() {
+    const targetChooser = document.getElementById("targetChooser");
+    const elP = document.getElementById("kP");
+    const elI = document.getElementById("kI");
+    const elD = document.getElementById("kD");
+    var target;
+    
+    try {
+    const response2 = await fetch("/requestpid?target="+targetChooser.value);
+    if (!response2.ok) return;
+    
+    const data2 = await response2.json();
+    console.log(data2);
+    elP.value = data2.kP;
+    elI.value = data2.kI;
+    elD.value = data2.kD;
+  } catch (err) {
+    console.error("Failed to fetch default PIDs:", err);
+    return;
+  }
+}
+
+function updateAll() {
+  updateDashboard();
+  setRobotRotation();
+  updateAutoChooser();
+}
+
+document.getElementById('targetChooser').addEventListener('change', e => {
+    loadPIDs();
+});
+
+document.getElementById('ec').addEventListener('change', e => {
+    fetch('/setErrorCorrection?value=' + e.target.value);
+});
+
+window.addEventListener('load', (event) => {
+    loadPIDs();
+    fetchSpeeds();
+});
+
+setInterval(updateAll, 100);
+
+const sliders = document.querySelectorAll('input[type=range]');
+  sliders.forEach(slider => {
+    const valueDiv = slider.previousElementSibling;
+    slider.addEventListener('input', () => {
+      valueDiv.textContent = (slider.value / 1000).toFixed(1) + 'k';
+  });
+});
+
+const verticalSliders = document.querySelectorAll('.sliderB');
+
+verticalSliders.forEach((slider, index) => {
+  slider.addEventListener('input', async (event) => {
+    const speed = event.target.value;
+    try {
+      await fetch(`/updateSpeeds?index=${index}&speed=${speed}`);
+      fetchSpeeds();
+    } catch (err) {
+      console.error('Failed to update speed:', err);
+    }
+  });
+});
+</script>
+</body>
+</html>
